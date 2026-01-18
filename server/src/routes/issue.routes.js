@@ -1,7 +1,7 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/auth.middleware";
-import { allowRoles } from "../middlewares/role.middleware";
-import * as issueController from "../controllers/issue.controller";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { allowRoles } from "../middlewares/role.middleware.js";
+import * as issueController from "../controllers/issue.controller.js";
 
 const router = express.Router();
 

@@ -14,16 +14,44 @@ app.use(cors(
     }
 ));
 app.use(express.json());
-
 app.use("/issues", issueRoutes);
 
-if(!process.env.JWT_SECRET){
+if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET not defined");
 }
 
 app.get("/", (req, res) => {
     res.send("Server Running");
 })
+
+app.use((err, req, res, next) => {
+
+    console.error(err);
+
+    // Postgres duplicate key
+    if (err.code === "23505") {
+        return res.status(409).json({
+            success: false,
+            message: "Resource already exists"
+        });
+    }
+
+    // Custom operational errors
+    if (err.isOperational) {
+        return res.status(err.statusCode).json({
+            success: false,
+            message: err.message
+        });
+    }
+
+    // Unknown errors
+    return res.status(500).json({
+        success: false,
+        message: "Internal Server Error"
+    });
+
+});
+
 
 const PORT = process.env.PORT || 5000;
 

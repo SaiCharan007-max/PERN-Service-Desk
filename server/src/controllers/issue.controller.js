@@ -1,5 +1,4 @@
-import { issueCreated } from "../services/issue.service.js";
-
+import * as issueService from "../services/issue.service.js";
 
 export const createIssue = async (req, res, next) => {
     try {
@@ -36,26 +35,82 @@ export const createIssue = async (req, res, next) => {
 };
 
 
-export const assignIssue = (req, res) => {
+export const assignIssue = async (req, res, next) => {
     try {
+        const issueId = req.params.id;
+        const staffId = req.body.staffId;
+
+        if (!issueId) {
+            return res.status(400).json({ message: "Issue ID required" });
+        }
+        if (!staffId) {
+            return res.status(400).json({ message: "Staff required to be assigned" });
+        }
+
+        const result = await issueService.assignIssue({ issueId, staffId });
+
+        return res.status(200).json({
+            success: true,
+            data: result
+        });
 
     } catch (err) {
-        return res.status(500).json({ message: "Issue Not Assigned" });
+        next(err);
     }
 }
 
-export const updateIssueStatus = (req, res) => {
+export const updateIssueStatus = async (req, res, next) => {
     try {
+        const { status, priority } = req.body;
+        const issueId = req.params.id;   // better than body
+        const userId = req.userId;
+        const role = req.userRole;
+
+        if (!issueId) {
+            return res.status(400).json({ message: "Issue ID required" });
+        }
+
+        if (!status) {
+            return res.status(400).json({ message: "Status required" });
+        }
+
+        const result = await issueService.updateIssueStatus({
+            issueId,
+            status,
+            priority,
+            userId,
+            role
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: result
+        });
 
     } catch (err) {
-        return res.status(500).json({ message: "Issue Not Assigned" });
+        next(err);
     }
-}
+};
 
-export const getIssueById = (req, res) => {
+
+export const getIssueById = async (req, res, next) => {
     try {
+        const issueId = req.params.id;
+        const userId = req.userId;
+        const role = req.userRole;
+
+        if (!issueId) {
+            return res.status(400).json({ message: "Issue ID required" });
+        }
+
+        const result = await issueService.getIssueById({ issueId, userId, role });
+
+        return res.status(200).json({
+            success: true,
+            data: result
+        });
 
     } catch (err) {
-        return res.status(500).json({ message: "Server Error" });
+        next(err);
     }
 }
