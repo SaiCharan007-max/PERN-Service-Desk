@@ -1,0 +1,1 @@
+export default allowedstatuses = ['pending','open','in_progress','resolved','closed'];

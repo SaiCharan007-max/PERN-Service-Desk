@@ -3,7 +3,7 @@ import { validationResult } from "express-validator";
 import AppError from "../utils/AppError.js";
 
 
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
 	try {
 
 		//validate the input first
@@ -15,21 +15,12 @@ export const register = async (req, res) => {
 		const user = await registerUser(data); //service call
 		return res.status(201).json(user);// send response
 	} catch (err) {
-
-		if (err.code === "23505") {
-			return res.status(409).json({ message: "Email already exists" });
-		}
-
-		if(err.statusCode === 409){
-			return res.status(409).json({ message: err.message });
-		}
-
-		return res.status(500).json({ message: "Registration failed" });
+		next(err);
 	}
 };
 
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
 	try {
 
 		const errors = validationResult(req);
@@ -41,14 +32,7 @@ export const login = async (req, res) => {
 		const user = await loginUser(data);
 		return res.status(200).json(user);
 	} catch (err) {
-
-		if(err instanceof AppError) {
-			return res.status(err.statusCode).json({
-				message: err.message
-			});
-		}
-
-		return res.status(500).json({ message: "Login failed" });
+		next(err);
 	}
 };
 
